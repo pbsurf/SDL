@@ -161,6 +161,7 @@ JNIEXPORT void JNICALL SDL_JAVA_AUDIO_INTERFACE(nativeSetupJNI)(
         JNIEnv *env, jclass jcls);
 
 /* Java class SDLControllerManager */
+#if !SDL_JOYSTICK_DISABLED
 JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(
         JNIEnv *env, jclass jcls);
 
@@ -196,7 +197,7 @@ JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddHaptic)(
 JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveHaptic)(
         JNIEnv* env, jclass jcls,
         jint device_id);
-
+#endif
 
 
 /* Uncomment this to log messages entering and exiting methods in this file */
@@ -308,12 +309,12 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 
 void checkJNIReady()
 {
-    if (!mActivityClass || !mAudioManagerClass || !mControllerManagerClass) {
+    if (!mActivityClass || !mAudioManagerClass || (!mControllerManagerClass && !SDL_JOYSTICK_DISABLED)) {
         // We aren't fully initialized, let's just return.
         return;
     }
 
-    SDL_SetMainReady();    
+    SDL_SetMainReady();
 }
 
 /* Activity initialization -- called before SDL_main() to initialize JNI bindings */
@@ -432,6 +433,7 @@ JNIEXPORT void JNICALL SDL_JAVA_AUDIO_INTERFACE(nativeSetupJNI)(JNIEnv* mEnv, jc
 }
 
 /* Controller initialization -- called before SDL_main() to initialize JNI bindings */
+#if !SDL_JOYSTICK_DISABLED
 JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(JNIEnv* mEnv, jclass cls)
 {
     __android_log_print(ANDROID_LOG_VERBOSE, "SDL", "CONTROLLER nativeSetupJNI()");
@@ -455,6 +457,7 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(JNIEnv* mEn
 
     checkJNIReady();
 }
+#endif
 
 /* SDL main function prototype */
 typedef int (*SDL_main_func)(int argc, char *argv[]);
@@ -565,6 +568,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeOrientationChanged)(
     SDL_SendDisplayEvent(display, SDL_DISPLAYEVENT_ORIENTATION, orientation);
 }
 
+#if !SDL_JOYSTICK_DISABLED
 /* Paddown */
 JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadDown)(
                                     JNIEnv* env, jclass jcls,
@@ -622,7 +626,9 @@ JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveJoystick)(
 {
     return Android_RemoveJoystick(device_id);
 }
+#endif
 
+#if !SDL_HAPTIC_DISABLED
 JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddHaptic)(
     JNIEnv* env, jclass jcls, jint device_id, jstring device_name)
 {
@@ -641,7 +647,7 @@ JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveHaptic)(
 {
     return Android_RemoveHaptic(device_id);
 }
-
+#endif
 
 /* Surface Created */
 JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeSurfaceChanged)(JNIEnv* env, jclass jcls)
@@ -1819,7 +1825,7 @@ char* Android_JNI_GetClipboardText(void)
     JNIEnv* env = Android_JNI_GetEnv();
     char* text = NULL;
     jstring string;
-    
+
     string = (*env)->CallStaticObjectMethod(env, mActivityClass, midClipboardGetText);
     if (string) {
         const char* utf = (*env)->GetStringUTFChars(env, string, 0);
@@ -1829,7 +1835,7 @@ char* Android_JNI_GetClipboardText(void)
         }
         (*env)->DeleteLocalRef(env, string);
     }
-    
+
     return (text == NULL) ? SDL_strdup("") : text;
 }
 
@@ -1993,6 +1999,7 @@ void Android_JNI_SetSeparateMouseAndTouch(SDL_bool new_value)
     (*env)->SetStaticBooleanField(env, mActivityClass, fidSeparateMouseAndTouch, new_value ? JNI_TRUE : JNI_FALSE);
 }
 
+#if !SDL_JOYSTICK_DISABLED
 void Android_JNI_PollInputDevices(void)
 {
     JNIEnv *env = Android_JNI_GetEnv();
@@ -2016,6 +2023,7 @@ void Android_JNI_HapticStop(int device_id)
     JNIEnv *env = Android_JNI_GetEnv();
     (*env)->CallStaticVoidMethod(env, mControllerManagerClass, midHapticStop, device_id);
 }
+#endif
 
 /* See SDLActivity.java for constants. */
 #define COMMAND_SET_KEEP_SCREEN_ON    5
