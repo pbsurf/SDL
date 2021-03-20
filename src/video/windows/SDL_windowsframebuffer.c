@@ -99,7 +99,10 @@ int WIN_UpdateWindowFramebuffer(_THIS, SDL_Window * window, const SDL_Rect * rec
 {
     SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
 
-    BitBlt(data->hdc, 0, 0, window->w, window->h, data->mdc, 0, 0, SRCCOPY);
+    if (numrects == 1)
+      BitBlt(data->hdc, rects[0].x, rects[0].y, rects[0].w, rects[0].h, data->mdc, rects[0].x, rects[0].y, SRCCOPY);
+    else
+      BitBlt(data->hdc, 0, 0, window->w, window->h, data->mdc, 0, 0, SRCCOPY);
     return 0;
 }
 
