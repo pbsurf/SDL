@@ -476,4 +476,12 @@ typedef unsigned int uintptr_t;
 #  endif /* !_STDINT_H_ && !HAVE_STDINT_H */
 #endif /* __WIN32__ */
 
+/* maximize compatibility */
+__asm__(".symver exp,exp@GLIBC_2.2.5");
+__asm__(".symver pow,pow@GLIBC_2.2.5");
+__asm__(".symver log,log@GLIBC_2.2.5");
+__asm__(".symver expf,expf@GLIBC_2.2.5");
+__asm__(".symver powf,powf@GLIBC_2.2.5");
+__asm__(".symver logf,logf@GLIBC_2.2.5");
+
 #endif /* SDL_config_h_ */
