@@ -35,6 +35,8 @@
 #include "SDL_config_winrt.h"
 #elif defined(__MACOSX__)
 #include "SDL_config_macosx.h"
+//#include "SDL_config_maccfg.h"
+//#undef USING_GENERATED_CONFIG_H
 #elif defined(__IPHONEOS__)
 #include "SDL_config_iphoneos.h"
 #elif defined(__ANDROID__)

@@ -802,8 +802,13 @@ SDL_SendKeyboardText(const char *text)
         SDL_Event event;
         event.text.type = SDL_TEXTINPUT;
         event.text.windowID = keyboard->focus ? keyboard->focus->id : 0;
-        SDL_utf8strlcpy(event.text.text, text, SDL_arraysize(event.text.text));
-        posted = (SDL_PushEvent(&event) > 0);
+        while(*text) {
+            size_t n = SDL_utf8strlcpy(event.text.text, text, SDL_arraysize(event.text.text));
+            if(n == 0)  /* nothing copied ... bad UTF-8? */
+                break;
+            text += n;
+            posted = (SDL_PushEvent(&event) > 0);
+        }
     }
     return (posted);
 }
