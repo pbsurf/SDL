@@ -37,17 +37,24 @@ int Emscripten_CreateWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * form
 
     /* Free the old framebuffer surface */
     SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
-    surface = data->surface;
-    SDL_FreeSurface(surface);
+    //surface = data->surface;
+    //SDL_FreeSurface(surface);
+    // window->surface already freed
+    data->surface = NULL;
 
     /* Create a new one */
     SDL_PixelFormatEnumToMasks(surface_format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
-    SDL_GetWindowSize(window, &w, &h);
+    //SDL_GetWindowSize(window, &w, &h);
+    w = SDL_floor(window->w * data->pixel_ratio);
+    h = SDL_floor(window->h * data->pixel_ratio);
 
     surface = SDL_CreateRGBSurface(0, w, h, bpp, Rmask, Gmask, Bmask, Amask);
     if (!surface) {
         return -1;
     }
+
+    // otherwise SDL will create a separate surface with wrong width and height
+    window->surface = surface;
 
     /* Save the info and return! */
     data->surface = surface;
