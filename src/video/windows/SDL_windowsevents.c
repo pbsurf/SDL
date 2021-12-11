@@ -450,7 +450,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                         data->focus_click_pending |= SDL_BUTTON_X2MASK;
                     }
                 }
-                
+
                 SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_SHOWN, 0, 0);
                 if (SDL_GetKeyboardFocus() != data->window) {
                     SDL_SetKeyboardFocus(data->window);
@@ -1066,7 +1066,7 @@ WIN_PumpEvents(_THIS)
 {
     const Uint8 *keystate;
     MSG msg;
-    DWORD start_ticks = GetTickCount();
+    DWORD start_ticks = GetTickCount() + 1;
 
     if (g_WindowsEnableMessageLoop) {
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
